@@ -5,10 +5,7 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Wikipedia Search App</title>
-        <link
-            href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap"
-            rel="stylesheet"
-        />
+        <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet"/>
         <style>
             * {
                 margin: 0;
@@ -81,32 +78,51 @@
             }
             .output {
                 margin: 40px 0;
-                padding: 20px;
+                padding: 10px 20px 10px;
                 max-width: 640px;
                 background: #fff;
                 border-radius: 12px;
                 box-shadow: 0px 3px 3px 0px rgba(0, 0, 0, 0.25);
                 display: none;
-                text-transform: capitalize;
-                flex-wrap: wrap;
-                justify-content: space-evenly;
+                flex-direction: column;
             }
             .output.active {
                 display: flex;
             }
 
-            .output div {
-                background: #eff1fa;
-                padding: 4px 8px;
-                margin: 8px 6px;
-                border-radius: 8px;
+            .output .card {
+                margin: 16px 0;
+            }
+
+            .output .card .title{
                 font-size: 18px;
-                box-shadow: 0 3px 3px -3px rgba(0, 0, 0, 0.6);
+                font-weight: 600;
+                text-transform: capitalize;
             }
-            .output div a {
+
+            .output .card .title a{
                 text-decoration: none;
-                color: #252525;
+                color: #0645ad;
             }
+
+            .output .card .snippet{
+                margin-top: 5px;
+                font-size: 16px;
+                color: #454545;
+            }
+
+            .output .card .snippet .searchmatch{
+                font-weight: 600;
+                color: #151515;
+            }
+
+            .output .card .footer{
+                margin-top: 5px;
+                font-size: 14px;
+                color: #008000;
+            }
+
+            
 
             @media (max-width: 700px) {
                 .container {
@@ -117,7 +133,6 @@
                 }
                 .output {
                     margin: 30px 15px;
-                    padding: 16px;
                 }
             }
 
@@ -130,13 +145,6 @@
                 }
                 .output {
                     margin: 20px 5px;
-                    padding: 10px;
-                }
-                .output div {
-                    font-size: 16px;
-                }
-                .output div a {
-                    cursor: none;
                 }
             }
         </style>
@@ -167,7 +175,7 @@
 
             let output = document.querySelector('.output');
 
-            let api = 'https://en.wikipedia.org/w/api.php?action=query&origin=*&format=json&generator=search&gsrnamespace=0&gsrlimit=36&gsrsearch=';
+            let api = 'https://en.wikipedia.org/w/api.php?action=query&origin=*&list=search&format=json&srsearch=';
 
             function showWord(url) {
                 fetch(url)
@@ -175,17 +183,33 @@
                         return resp.json();
                     })
                     .then((data) => {
-                        let pages = data.query.pages;
+                        let search = data.query.search;
 
                         output.innerHTML = '';
-                        for (const i in pages) {
-                            let page = document.createElement('div');
-                            page.innerHTML = `
-                                <a href="https://en.wikipedia.org/wiki/${pages[i].title}" target="_blank" rel="noopener noreferrer">
-                                    ${pages[i].title}
-                                </a>
+                        for (let i = 0; i < search.length; i++) {
+                          
+                            let size = Math.round(search[i].size / 1000) || 1;
+                            let word = Math.round(search[i].wordcount).toLocaleString();
+
+                            let date = new Date(search[i].timestamp);
+                            let dateS = date.toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' });
+                            let timeS = date.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+
+                            output.innerHTML += `
+                                <div class="card">
+                                    <div class="title">
+                                        <a href="https://en.wikipedia.org/wiki/${search[i].title}" target="_blank" rel="noopener noreferrer">
+                                            ${search[i].title}
+                                        </a>
+                                    </div>
+                                    <div class="snippet">
+                                        ${search[i].snippet}
+                                    </div>
+                                    <div class="footer">
+                                        ${size}kb (${word} words) - ${timeS}, ${dateS} 
+                                    </div>
+                                </div>
                             `;
-                            output.appendChild(page);
                         }
                     });
             }
@@ -203,5 +227,6 @@
                 }, 5000);
             });
         </script>
+        
     </body>
 </html>
