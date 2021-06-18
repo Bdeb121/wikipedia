@@ -175,7 +175,7 @@
 
             let output = document.querySelector('.output');
 
-            let api = 'https://en.wikipedia.org/w/api.php?action=query&origin=*&list=search&format=json&srsearch=';
+            let api = 'https://en.wikipedia.org/w/api.php?action=query&list=search&prop=info&inprop=url&utf8=&format=json&origin=*&srlimit=20&srsearch=';
 
             function showWord(url) {
                 fetch(url)
